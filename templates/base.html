@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Database Siaran Anime Indonesia{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/custom.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-content">
+      <div class="logo-title">
+        <img src="/static/img/logo.png" alt="Logo" class="logo">
+        <div>
+          <h1>Database Siaran Anime Indonesia</h1>
+          <p class="subtitle">Katalog & Proyek Anime Lokal</p>
+        </div>
+      </div>
+
+      <nav class="main-nav">
+        <a href="/">Katalog</a>
+        <a href="/penggarap">Penggarap</a>
+
+        <div class="dropdown">
+          <button class="dropbtn">Tautan ▾</button>
+          <div class="dropdown-content">
+            <a href="https://discord.com"><span class="icon">💬</span> Discord</a>
+            <a href="https://saweria.co"><span class="icon">💰</span> Donasi</a>
+            <a href="https://instagram.com"><span class="icon">📸</span> Media Sosial</a>
+          </div>
+        </div>
+
+        {% if user_logged_in %}
+          <a href="/profil">Profil</a>
+          <a href="/logout">Keluar</a>
+        {% else %}
+          <a href="/login">Masuk</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

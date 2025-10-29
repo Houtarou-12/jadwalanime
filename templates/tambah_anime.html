@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Tambah Anime dari MAL{% endblock %}
+{% block content %}
+<h2>➕ Tambah Anime dari MyAnimeList</h2>
+<form method="POST">
+  <label>Masukkan URL MAL:</label><br>
+  <input type="text" name="mal_url" placeholder="https://myanimelist.net/anime/..." required style="width:100%;"><br><br>
+  <button type="submit">Ambil & Simpan</button>
+</form>
+
+{% if message %}
+  <p style="margin-top:1rem;">{{ message }}</p>
+{% endif %}
+{% endblock %}

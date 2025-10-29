@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Tambah Proyek{% endblock %}
+{% block content %}
+<h2>➕ Tambah Proyek Baru</h2>
+<form method="POST">
+  <label>Judul Anime:</label><br>
+  <input type="text" name="judul" required><br><br>
+
+  <label>Status:</label><br>
+  <select name="status" required>
+    <option value="Ongoing">Ongoing</option>
+    <option value="Completed">Completed</option>
+    <option value="Planned">Planned</option>
+  </select><br><br>
+
+  <label>Tahun Rilis:</label><br>
+  <input type="number" name="tahun" min="1900" max="2100" required><br><br>
+
+  <input type="hidden" name="id" value="{{ proyek_list|length + 1 }}">
+  <button type="submit">Simpan</button>
+</form>
+{% endblock %}

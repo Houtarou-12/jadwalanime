@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Daftar Proyek{% endblock %}
+{% block content %}
+<h2>🎬 Daftar Proyek Anime</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Judul</th>
+      <th>Status</th>
+      <th>Tahun</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in proyek_list %}
+    <tr>
+      <td>{{ item.judul }}</td>
+      <td>{{ item.status }}</td>
+      <td>{{ item.tahun }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

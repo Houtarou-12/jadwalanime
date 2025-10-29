@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Daftar Penggarap{% endblock %}
+{% block content %}
+<h2>📋 Daftar Penggarap</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Nama</th>
+      <th>Peran</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in penggarap_list %}
+    <tr>
+      <td>{{ item.nama }}</td>
+      <td>{{ item.peran }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
