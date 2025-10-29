@@ -4,7 +4,7 @@
 
 <div class="detail-grid">
 
-  <!-- Judul full width, dimajukan sejajar poster -->
+  <!-- Judul full width, sejajar poster -->
   <h2 class="detail-title">{{ anime.title }}</h2>
 
   <!-- Poster kiri -->
@@ -31,7 +31,7 @@
       {% endif %}
     </ul>
 
-    <!-- Sinopsis di bawah info -->
+    <!-- Sinopsis -->
     <div class="sinopsis-section">
       <h3>📝 Sinopsis</h3>
       <p class="sinopsis-text" id="sinopsis-text">
@@ -63,10 +63,10 @@ function toggleSinopsis() {
   const text = document.getElementById("sinopsis-text");
   const btn = document.querySelector(".toggle-btn");
   if (btn.innerText === "Lihat Selengkapnya") {
-    text.textContent = "{{ anime.synopsis|replace('\n',' ')|tojson }}";
+    text.textContent = {{ anime.synopsis|tojson }};
     btn.innerText = "Tutup";
   } else {
-    text.textContent = "{{ (anime.synopsis[:250] ~ ('...' if anime.synopsis|length > 250 else ''))|replace('\n',' ')|tojson }}";
+    text.textContent = {{ (anime.synopsis[:250] ~ ('...' if anime.synopsis|length > 250 else ''))|tojson }};
     btn.innerText = "Lihat Selengkapnya";
   }
 }
