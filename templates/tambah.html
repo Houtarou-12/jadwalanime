@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
+        .container { max-width: 500px; margin: 40px auto; background: #1e293b; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); border: 1px solid #334155; position: relative; }
+        h1 { font-size: 20px; color: #f8fafc; margin-top: 0; margin-bottom: 20px; border-bottom: 2px solid #6c5ce7; padding-bottom: 10px; }
+        
+        .form-group { margin-bottom: 16px; position: relative; }
+        label { display: block; font-size: 13px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px; }
+        input, select, textarea { width: 100%; padding: 10px 12px; background-color: #0f172a; border: 1px solid #334155; border-radius: 8px; font-size: 14px; color: #f8fafc; box-sizing: border-box; outline: none; }
+        input:focus, select:focus, textarea:focus { border-color: #6c5ce7; }
+        input:disabled { background-color: #334155; opacity: 0.7; cursor: not-allowed; }
+
+        input[type="time"] {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 15px;
+            
+            /* STICKY HEADER */
+            position: sticky;
+            top: 0;
+            background-color: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            padding-top: 15px;
+            margin-left: -10px;
+            margin-right: -10px;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        /* CUSTOM DROPDOWN DENGAN SEKAT / PEMBATAS */
+        .custom-dropdown-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            margin-top: 4px;
+            max-height: 190px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+        .custom-dropdown-item {
+            padding: 10px 12px;
+            font-size: 14px;
+            color: #cbd5e1;
+            cursor: pointer;
+            border-bottom: 1px solid #283548; /* Garis sekat antar pilihan */
+            transition: background 0.15s, color 0.15s;
+        }
+        .custom-dropdown-item:last-child {
+            border-bottom: none; /* Hilangkan sekat di item terakhir */
+        }
+        .custom-dropdown-item:hover {
+            background-color: #334155;
+            color: #38bdf8;
+        }
+
+        .btn-group { display: flex; gap: 10px; margin-top: 24px; }
+        .btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; text-align: center; text-decoration: none; }
+        .btn-submit { background-color: #6c5ce7; color: white; }
+        .btn-submit:hover { background-color: #5b47db; }
+        .btn-cancel { background-color: #334155; color: #cbd5e1; }
+        .btn-cancel:hover { background-color: #475569; }
+
+        /* TOAST ALERT NOTIFICATION (#3cff5d) */
+        .toast-alert {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            background-color: #3cff5d;
+            color: #0f172a;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ title }}</h1>
+        <form method="POST" autocomplete="off">
+            <!-- CUSTOM DROPDOWN HARI PENAYANGAN DENGAN SEKAT -->
+            <div class="form-group">
+                <label for="input_hari">Hari Penayangan</label>
+                <input type="text" id="input_hari" name="hari" placeholder="Pilih atau ketik hari..." value="{{ jadwal.hari if jadwal else '' }}" required>
+                <div id="dropdownHari" class="custom-dropdown-list"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="pukul">Pukul (WIB)</label>
+                <input type="time" name="pukul" id="pukul" value="{{ jadwal.pukul if jadwal else '20:00' }}" required>
+            </div>
+
+            <!-- CUSTOM DROPDOWN MUSIM ANIME DENGAN SEKAT -->
+            <div class="form-group">
+                <label for="filter_musim">Musim Anime</label>
+                <input type="text" id="filter_musim" placeholder="Ketik atau pilih musim..." value="{{ jadwal.musim if jadwal else '' }}" required>
+                <div id="dropdownMusim" class="custom-dropdown-list"></div>
+            </div>
+
+            <!-- CUSTOM DROPDOWN JUDUL ANIME DENGAN SEKAT -->
+            <div class="form-group">
+                <label for="kegiatan">Judul Anime</label>
+                <input type="text" name="kegiatan" id="kegiatan" placeholder="Pilih musim terlebih dahulu..." value="{{ jadwal.kegiatan if jadwal else '' }}" disabled required>
+                <div id="dropdownJudul" class="custom-dropdown-list"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="keterangan">Catatan (Opsional)</label>
+                <input type="text" name="keterangan" id="keterangan" placeholder="Contoh: Bilibili / Sub Indo" value="{{ jadwal.keterangan if jadwal else '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="rilis_perdana">Tanggal Rilis Perdana</label>
+                <input type="date" name="rilis_perdana" id="rilis_perdana" value="{{ jadwal.rilis_perdana if jadwal else '' }}" required>
+            </div>
+
+            <div class="btn-group">
+                <a href="/jadwal-tayang" class="btn btn-cancel">Batal</a>
+                <button type="submit" class="btn btn-submit">Simpan</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- TOAST ALERT PEMBERITAHUAN DUPLIKASI -->
+    <div id="toastNotification" class="toast-alert" style="display: none;">
+        <span>⚠️</span> Judul sudah ada, silakan masukkan judul lain~
+    </div>
+
+    <script>
+        // Fungsi helper untuk mendekode entitas HTML khusus (misal: &#39; menjadi ')
+        function decodeHtml(html) {
+            const txt = document.createElement("textarea");
+            txt.innerHTML = html;
+            return txt.value;
+        }
+
+        const listHari = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+
+        const listMusim = [
+            {% for m in list_musim %}
+            decodeHtml("{{ m | escape }}"),
+            {% endfor %}
+        ];
+
+        const allAnimeData = [
+            {% for a in daftar_anime %}
+            { judul: decodeHtml("{{ a.judul | escape }}"), musim: decodeHtml("{{ a.musim | escape }}") },
+            {% endfor %}
+        ];
+
+        const inputHari = document.getElementById('input_hari');
+        const dropdownHari = document.getElementById('dropdownHari');
+        const inputMusim = document.getElementById('filter_musim');
+        const dropdownMusim = document.getElementById('dropdownMusim');
+        const inputJudul = document.getElementById('kegiatan');
+        const dropdownJudul = document.getElementById('dropdownJudul');
+
+        // Fungsi menutup semua dropdown agar tidak menumpuk
+        function closeAllDropdowns() {
+            document.querySelectorAll('.custom-dropdown-list').forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+
+        // Render Dropdown Hari
+        function renderHariDropdown(filter = "") {
+            closeAllDropdowns();
+            dropdownHari.innerHTML = '';
+            const filtered = listHari.filter(h => h.toLowerCase().includes(filter.toLowerCase()));
+            
+            if (filtered.length > 0) {
+                filtered.forEach(hari => {
+                    const item = document.createElement('div');
+                    item.className = 'custom-dropdown-item';
+                    item.innerText = hari;
+                    item.onclick = (e) => {
+                        e.stopPropagation();
+                        inputHari.value = hari;
+                        dropdownHari.style.display = 'none';
+                    };
+                    dropdownHari.appendChild(item);
+                });
+                dropdownHari.style.display = 'block';
+            } else {
+                dropdownHari.style.display = 'none';
+            }
+        }
+
+        inputHari.addEventListener('focus', (e) => { e.stopPropagation(); renderHariDropdown(inputHari.value); });
+        inputHari.addEventListener('click', (e) => { e.stopPropagation(); renderHariDropdown(inputHari.value); });
+        inputHari.addEventListener('input', (e) => { e.stopPropagation(); renderHariDropdown(e.target.value); });
+
+        // Render Dropdown Musim
+        function renderMusimDropdown(filter = "") {
+            closeAllDropdowns();
+            dropdownMusim.innerHTML = '';
+            const filtered = listMusim.filter(m => m.toLowerCase().includes(filter.toLowerCase()));
+            
+            if (filtered.length > 0) {
+                filtered.forEach(musim => {
+                    const item = document.createElement('div');
+                    item.className = 'custom-dropdown-item';
+                    item.innerText = musim;
+                    item.onclick = (e) => {
+                        e.stopPropagation();
+                        inputMusim.value = musim;
+                        dropdownMusim.style.display = 'none';
+                        updateAnimeOptions();
+                    };
+                    dropdownMusim.appendChild(item);
+                });
+                dropdownMusim.style.display = 'block';
+            } else {
+                dropdownMusim.style.display = 'none';
+            }
+        }
+
+        inputMusim.addEventListener('focus', (e) => { e.stopPropagation(); renderMusimDropdown(inputMusim.value); });
+        inputMusim.addEventListener('click', (e) => { e.stopPropagation(); renderMusimDropdown(inputMusim.value); });
+        inputMusim.addEventListener('input', (e) => {
+            e.stopPropagation();
+            renderMusimDropdown(e.target.value);
+            updateAnimeOptions();
+        });
+
+        // Render Dropdown Judul Anime berdasarkan Musim yang dipilih
+        function updateAnimeOptions(filter = "") {
+            const selectedMusim = inputMusim.value.trim();
+            dropdownJudul.innerHTML = '';
+
+            if (selectedMusim === "") {
+                inputJudul.value = "";
+                inputJudul.disabled = true;
+                inputJudul.placeholder = "Pilih musim terlebih dahulu...";
+                dropdownJudul.style.display = 'none';
+                return;
+            }
+
+            const matchedAnime = allAnimeData.filter(a => 
+                a.musim.toLowerCase() === selectedMusim.toLowerCase() &&
+                a.judul.toLowerCase().includes(filter.toLowerCase())
+            );
+            
+            inputJudul.disabled = false;
+            inputJudul.placeholder = "Ketik atau cari judul anime...";
+
+            if (matchedAnime.length > 0) {
+                closeAllDropdowns();
+                matchedAnime.forEach(anime => {
+                    const item = document.createElement('div');
+                    item.className = 'custom-dropdown-item';
+                    item.innerText = anime.judul;
+                    item.onclick = (e) => {
+                        e.stopPropagation();
+                        inputJudul.value = anime.judul;
+                        dropdownJudul.style.display = 'none';
+                    };
+                    dropdownJudul.appendChild(item);
+                });
+                dropdownJudul.style.display = 'block';
+            } else {
+                dropdownJudul.style.display = 'none';
+            }
+        }
+
+        inputJudul.addEventListener('focus', (e) => { e.stopPropagation(); closeAllDropdowns(); updateAnimeOptions(inputJudul.value); });
+        inputJudul.addEventListener('click', (e) => { e.stopPropagation(); closeAllDropdowns(); updateAnimeOptions(inputJudul.value); });
+        inputJudul.addEventListener('input', (e) => { e.stopPropagation(); updateAnimeOptions(e.target.value); });
+
+        // Tutup dropdown jika klik di luar elemen
+        document.addEventListener('click', () => {
+            closeAllDropdowns();
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (inputMusim.value.trim() !== "") {
+                updateAnimeOptions();
+            }
+
+            // Cek parameter ?msg=duplicate untuk menampilkan toast alert
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('msg') === 'duplicate') {
+                const toast = document.getElementById('toastNotification');
+                toast.style.display = 'flex';
+                
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transition = 'opacity 0.5s ease';
+                    setTimeout(() => toast.remove(), 500);
+                }, 4000);
+            }
+        });
+    </script>
+</body>
+</html>

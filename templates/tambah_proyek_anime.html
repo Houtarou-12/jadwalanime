@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Jadwal Tontonan</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
+        .container { max-width: 500px; margin: 40px auto; background: #1e293b; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); border: 1px solid #334155; }
+        h1 { font-size: 20px; color: #f8fafc; margin-top: 0; margin-bottom: 20px; border-bottom: 2px solid #6c5ce7; padding-bottom: 10px; }
+        
+        .form-group { margin-bottom: 16px; position: relative; }
+        label { display: block; font-size: 13px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px; }
+        
+        input, select, textarea { 
+            width: 100%; 
+            padding: 10px 12px; 
+            background-color: #0f172a; 
+            border: 1px solid #334155; 
+            border-radius: 8px; 
+            font-size: 14px; 
+            color: #f8fafc; 
+            box-sizing: border-box; 
+            outline: none; 
+            font-family: inherit;
+        }
+        input:focus, select:focus, textarea:focus { border-color: #6c5ce7; }
+        textarea { resize: vertical; height: 70px; }
+        
+        /* CUSTOM DROPDOWN DENGAN SEKAT / PEMBATAS */
+        .custom-dropdown-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            margin-top: 4px;
+            max-height: 190px;
+            overflow-y: auto;
+            z-index: 999;
+            display: none;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+        .custom-dropdown-item {
+            padding: 10px 12px;
+            font-size: 14px;
+            color: #cbd5e1;
+            cursor: pointer;
+            border-bottom: 1px solid #283548; /* Garis sekat antar pilihan */
+            transition: background 0.15s, color 0.15s;
+        }
+        .custom-dropdown-item:last-child {
+            border-bottom: none; /* Hilangkan sekat di item terakhir */
+        }
+        .custom-dropdown-item:hover {
+            background-color: #334155;
+            color: #38bdf8;
+        }
+
+        .btn-group { display: flex; gap: 10px; margin-top: 24px; }
+        .btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; text-align: center; text-decoration: none; }
+        .btn-submit { background-color: #6c5ce7; color: white; }
+        .btn-submit:hover { background-color: #5b47db; }
+        .btn-cancel { background-color: #334155; color: #cbd5e1; }
+        .btn-cancel:hover { background-color: #475569; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ title }} ({{ anime.judul }})</h1>
+        <form method="POST" id="formProyek" autocomplete="off">
+            <!-- CUSTOM DROPDOWN PENGGARAP -->
+            <div class="form-group">
+                <label for="penggarap_nama">Penggarap / Distributor</label>
+                <input type="text" name="penggarap_nama" id="penggarap_nama" placeholder="Ketik atau pilih penggarap..." value="{{ proyek.nama if proyek else '' }}" required>
+                <div id="dropdownPenggarap" class="custom-dropdown-list"></div>
+            </div>
+
+            <!-- CUSTOM DROPDOWN STATUS -->
+            <div class="form-group">
+                <label for="input_status">Status</label>
+                <input type="text" name="status_proyek" id="input_status" placeholder="Pilih status..." value="{{ proyek.status if proyek else 'Berjalan' }}" required readonly style="cursor: pointer;">
+                <div id="dropdownStatus" class="custom-dropdown-list"></div>
+            </div>
+
+            <!-- CUSTOM DROPDOWN TIPE -->
+            <div class="form-group">
+                <label for="input_tipe">Tipe</label>
+                <input type="text" name="tipe_proyek" id="input_tipe" placeholder="Pilih tipe..." value="{{ proyek.tipe if proyek else 'WEB-DL' }}" required readonly style="cursor: pointer;">
+                <div id="dropdownTipe" class="custom-dropdown-list"></div>
+            </div>
+
+            <!-- CUSTOM DROPDOWN TAKARIR -->
+            <div class="form-group">
+                <label for="input_takarir">Takarir</label>
+                <input type="text" name="takarir" id="input_takarir" placeholder="Pilih takarir..." value="{{ proyek.takarir if proyek else 'Softsub' }}" required readonly style="cursor: pointer;">
+                <div id="dropdownTakarir" class="custom-dropdown-list"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="tautan" id="labelTautan">Tautan Garapan (Wajib)</label>
+                <input type="url" name="tautan" id="tautan" placeholder="https://..." value="{{ proyek.tautan if proyek else '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="catatan">Catatan (Opsional)</label>
+                <textarea name="catatan" id="catatan" placeholder="Tambahan catatan jika ada...">{{ proyek.catatan if proyek else '' }}</textarea>
+            </div>
+
+            <div class="btn-group">
+                <a href="/detail/{{ anime.id }}" class="btn btn-cancel">Batal</a>
+                <button type="submit" class="btn btn-submit">Simpan Penggarap</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const masterPenggarap = [
+            {% for mp in master_penggarap %}
+            "{{ mp.nama | escape }}",
+            {% endfor %}
+        ];
+
+        const listStatus = ["Berjalan", "Tamat", "Tentatif", "Drop"];
+        const listTipe = ["WEB-DL", "TV", "Blu-ray/BD", "DVD"];
+        const listTakarir = ["Softsub", "Hardsub"];
+
+        const inputNama = document.getElementById('penggarap_nama');
+        const dropdownPenggarap = document.getElementById('dropdownPenggarap');
+        
+        const inputStatus = document.getElementById('input_status');
+        const dropdownStatus = document.getElementById('dropdownStatus');
+
+        const inputTipe = document.getElementById('input_tipe');
+        const dropdownTipe = document.getElementById('dropdownTipe');
+
+        const inputTakarir = document.getElementById('input_takarir');
+        const dropdownTakarir = document.getElementById('dropdownTakarir');
+
+        // Fungsi untuk menutup semua dropdown yang sedang terbuka
+        function closeAllDropdowns() {
+            document.querySelectorAll('.custom-dropdown-list').forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+
+        // Helper untuk membuat custom dropdown (jika isReadonly true, tampilkan semua opsi saat diklik)
+        function createCustomDropdown(inputEl, dropdownEl, dataList, isReadonly = false, onSelectCallback) {
+            function render(filter = "") {
+                closeAllDropdowns();
+                dropdownEl.innerHTML = '';
+                
+                // Jika input readonly (seperti status/tipe/takarir), abaikan filter teks saat pertama kali diklik agar semua opsi muncul
+                const query = isReadonly ? "" : filter;
+                const filtered = dataList.filter(item => item.toLowerCase().includes(query.toLowerCase()));
+                
+                if (filtered.length > 0) {
+                    filtered.forEach(itemText => {
+                        const div = document.createElement('div');
+                        div.className = 'custom-dropdown-item';
+                        div.innerText = itemText;
+                        div.onclick = (e) => {
+                            e.stopPropagation();
+                            inputEl.value = itemText;
+                            dropdownEl.style.display = 'none';
+                            if (onSelectCallback) onSelectCallback(itemText);
+                        };
+                        dropdownEl.appendChild(div);
+                    });
+                    dropdownEl.style.display = 'block';
+                } else {
+                    dropdownEl.style.display = 'none';
+                }
+            }
+
+            inputEl.addEventListener('focus', (e) => {
+                e.stopPropagation();
+                render("");
+            });
+            inputEl.addEventListener('click', (e) => {
+                e.stopPropagation();
+                render("");
+            });
+            if (!isReadonly) {
+                inputEl.addEventListener('input', (e) => {
+                    e.stopPropagation();
+                    render(e.target.value);
+                });
+            }
+        }
+
+        // Inisialisasi Dropdown
+        createCustomDropdown(inputNama, dropdownPenggarap, masterPenggarap, false);
+        createCustomDropdown(inputStatus, dropdownStatus, listStatus, true, (selectedVal) => {
+            checkStatus(selectedVal);
+        });
+        createCustomDropdown(inputTipe, dropdownTipe, listTipe, true);
+        createCustomDropdown(inputTakarir, dropdownTakarir, listTakarir, true);
+
+        // Tutup semua dropdown jika klik di luar elemen form
+        document.addEventListener('click', () => {
+            closeAllDropdowns();
+        });
+
+        function checkStatus(statusVal) {
+            const val = statusVal || inputStatus.value;
+            const inputTautan = document.getElementById('tautan');
+            const labelTautan = document.getElementById('labelTautan');
+
+            if (val === 'Tentatif') {
+                inputTautan.required = false;
+                labelTautan.innerText = 'Tautan Garapan (Opsional)';
+                inputTautan.placeholder = 'Opsional karena status Tentatif...';
+            } else {
+                inputTautan.required = true;
+                labelTautan.innerText = 'Tautan Garapan (Wajib)';
+                inputTautan.placeholder = 'https://...';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            checkStatus();
+        });
+    </script>
+</body>
+</html>

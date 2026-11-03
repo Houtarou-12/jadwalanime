@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ anime.judul }} - {{ title }}</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0b1120; color: #f8fafc; margin: 0; padding: 15px; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 10px; }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 15px;
+            
+            /* STICKY HEADER */
+            position: sticky;
+            top: 0;
+            background-color: rgba(11, 17, 32, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            padding-top: 15px;
+            margin-left: -10px;
+            margin-right: -10px;
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+        
+        .header-left { display: flex; flex-direction: column; gap: 4px; }
+        .title-row { display: flex; align-items: center; gap: 10px; }
+        .main-brand { font-size: 22px; margin: 0; color: #f8fafc; font-weight: 700; }
+        .sakura-icon { font-size: 22px; line-height: 1; }
+        
+        .header-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+        }
+        .nav-menu { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; justify-content: center; }
+        .nav-link { 
+            color: #94a3b8; 
+            text-decoration: none; 
+            font-weight: 600; 
+            font-size: 14.5px; 
+            transition: color 0.2s; 
+        }
+        .nav-link.active, .nav-link:hover { color: #f8fafc; }
+        
+        .nav-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropbtn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 14.5px;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.2s;
+        }
+        .dropbtn:hover, .nav-dropdown.active .dropbtn {
+            color: #f8fafc;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #1e293b;
+            min-width: 160px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            z-index: 100;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .dropdown-content a {
+            color: #cbd5e1;
+            padding: 10px 14px;
+            text-decoration: none;
+            display: block;
+            font-size: 13.5px;
+            font-weight: 500;
+            transition: background 0.15s, color 0.15s;
+        }
+        .dropdown-content a:hover {
+            background-color: #334155;
+            color: #38bdf8;
+        }
+        .nav-dropdown.show .dropdown-content {
+            display: block;
+        }
+
+        /* SEARCH BAR DI HEADER KANAN */
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+        .search-container {
+            position: relative;
+        }
+        .search-input {
+            background-color: #0b1120;
+            border: 1px solid #334155;
+            border-radius: 20px;
+            padding: 6px 14px 6px 32px;
+            color: #f8fafc;
+            font-size: 13px;
+            width: 200px;
+            outline: none;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .search-input:focus {
+            border-color: #6c5ce7;
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+        }
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 12px;
+            pointer-events: none;
+        }
+        .search-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            width: 280px;
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            z-index: 1100;
+            overflow: hidden;
+        }
+        .search-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            text-decoration: none;
+            color: #f8fafc;
+            border-bottom: 1px solid #334155;
+            transition: background 0.15s;
+        }
+        .search-item:last-child { border-bottom: none; }
+        .search-item:hover { background-color: #334155; }
+        .search-item img {
+            width: 32px; height: 45px; object-fit: cover; border-radius: 4px; background-color: #0f172a;
+        }
+        .search-item-info { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+        .search-item-title { font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .search-item-sub { font-size: 10.5px; color: #94a3b8; }
+        .search-empty { padding: 12px; text-align: center; font-size: 12px; color: #94a3b8; }
+
+        @media (max-width: 900px) {
+            .header-top {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            .header-left { align-items: flex-start; }
+            .header-center {
+                width: 100%;
+                border-top: 1px solid #1e293b;
+                border-bottom: 1px solid #1e293b;
+                padding: 8px 0;
+            }
+            .header-right { width: 100%; }
+            .search-input { width: 100%; }
+        }
+        
+        .nav-back {
+            display: inline-block;
+            margin-bottom: 25px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .nav-back:hover { color: #f8fafc; }
+
+        .detail-wrapper {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .poster-container {
+            width: 280px;
+            flex-shrink: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            background-color: #1e293b;
+        }
+
+        .poster-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .info-container {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .breadcrumb { font-size: 13px; color: #38bdf8; margin-bottom: 8px; font-weight: 500; }
+        .anime-main-title { font-size: 34px; font-weight: 800; margin: 0 0 6px 0; color: #ffffff; line-height: 1.2; }
+        .anime-alt-title { font-size: 15px; color: #94a3b8; margin-bottom: 20px; }
+
+        .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; align-items: center; }
+        .pill-item { background-color: #1e293b; color: #cbd5e1; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .pill-type { background-color: #0284c7; color: white; }
+        .pill-status { background-color: #1e293b; border: 1px solid #334155; }
+        .pill-rating { background-color: #7c2d12; color: #fde047; font-weight: 700; }
+
+        .tags-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 25px; }
+        .tag-badge { background-color: #1e293b; color: #38bdf8; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; border: 1px solid #0284c7; }
+
+        .meta-info { font-size: 13px; color: #94a3b8; margin-bottom: 25px; line-height: 1.6; }
+        .meta-info strong { color: #cbd5e1; }
+
+        .action-buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: auto; }
+        .btn-action { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; cursor: pointer; border: none; transition: opacity 0.2s; }
+        .btn-action:hover { opacity: 0.85; }
+        .btn-mal { background-color: #0284c7; color: white; }
+        .btn-share { background-color: #1e293b; color: #cbd5e1; border: 1px solid #334155; }
+        .btn-sync { background-color: #0d9488; color: white; }
+        .btn-schedule { background-color: #475569; color: white; }
+
+        /* SINOPSIS 1 BARIS + TOGGLE */
+        .synopsis-section { margin-top: 20px; border-top: 1px solid #1e293b; padding-top: 25px; }
+        .synopsis-section h2 { font-size: 20px; font-weight: 700; margin-bottom: 12px; color: #f8fafc; }
+        .synopsis-container { font-size: 14px; line-height: 1.6; color: #cbd5e1; }
+        
+        .synopsis-text.truncated {
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal;
+        }
+        .synopsis-text.full { display: block; white-space: pre-line; }
+
+        .btn-toggle-synopsis {
+            background: none; border: none; color: #38bdf8; font-size: 13.5px;
+            font-weight: 600; cursor: pointer; padding: 0; margin-top: 6px;
+            display: inline-block; text-decoration: underline;
+        }
+        .btn-toggle-synopsis:hover { color: #7dd3fc; }
+
+        /* BAGIAN PENGGARAP */
+        .section-penggarap {
+            margin-top: 30px;
+            border-top: 1px solid #1e293b;
+            padding-top: 30px;
+        }
+
+        .penggarap-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .penggarap-header-title h2 { font-size: 20px; font-weight: 700; margin: 0 0 4px 0; color: #f8fafc; }
+        .penggarap-header-title p { font-size: 13px; color: #94a3b8; margin: 0; }
+
+        .btn-add-proyek {
+            background-color: #6c5ce7;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn-add-proyek:hover { background-color: #5b47db; }
+
+        .proyek-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        .proyek-card {
+            background-color: #1e293b;
+            border-radius: 10px;
+            padding: 16px;
+            border: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .proyek-info { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
+        .proyek-nama { font-size: 16px; font-weight: 700; color: #f8fafc; margin: 0; }
+        
+        .proyek-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+        .badge-tag { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+        .badge-tipe { background-color: #0369a1; color: #e0f2fe; }
+        .badge-takarir { background-color: #334155; color: #cbd5e1; }
+        
+        .badge-status-tamat { background-color: #000000; color: #ffffff; }
+        .badge-status-jalan { background-color: #16a34a; color: #ffffff; }
+        .badge-status-drop { background-color: #7f1d1d; color: #f87171; }
+        .badge-status-tentatif { background-color: #78350f; color: #fcd34d; }
+
+        .proyek-actions-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .proyek-link-icon {
+            background-color: #0f172a;
+            color: #38bdf8;
+            width: 32px; height: 32px;
+            border-radius: 6px;
+            text-decoration: none;
+            border: 1px solid #334155;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .proyek-link-icon:hover { background-color: #334155; color: white; }
+
+        .btn-mini {
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 4px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-mini-edit { background-color: #0284c7; color: white; }
+        .btn-mini-edit:hover { background-color: #0369a1; }
+        .btn-mini-del { background-color: #dc2626; color: white; }
+        .btn-mini-del:hover { background-color: #b91c1c; }
+
+        .empty-proyek { color: #94a3b8; font-size: 13px; font-style: italic; }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .modal-card { background-color: #1e293b; width: 90%; max-width: 480px; border-radius: 12px; padding: 24px; border: 1px solid #334155; }
+        .modal-header { font-size: 18px; font-weight: 700; margin-bottom: 8px; color: #f8fafc; }
+        .modal-desc { font-size: 12.5px; color: #94a3b8; margin-bottom: 20px; }
+        .form-input { width: 100%; padding: 10px 12px; background-color: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 13px; box-sizing: border-box; outline: none; margin-bottom: 20px; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+        .btn-cancel { background: #334155; color: #cbd5e1; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; }
+        .btn-save { background: #0d9488; color: white; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; }
+
+        /* TOAST ALERT NOTIFICATION */
+        .toast-alert {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            background-color: #3cff5d;
+            color: #0f172a;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER KONSISTEN -->
+        <div class="header-top">
+            <div class="header-left">
+                <div class="title-row">
+                    <span class="sakura-icon">🌸</span>
+                    <h1 class="main-brand">Jadwal Tontonan</h1>
+                </div>
+            </div>
+            
+            <div class="header-center">
+                <div class="nav-menu">
+                    <a href="/" class="nav-link">Beranda</a>
+                    <a href="/jadwal-tayang" class="nav-link">Jadwal</a>
+                    <a href="/daftar-penggarap" class="nav-link">Penggarap</a>
+                    
+                    <div class="nav-dropdown" id="kontakDropdown">
+                        <button class="dropbtn" onclick="toggleDropdown(event)">Kontak ▾</button>
+                        <div class="dropdown-content">
+                            <a href="https://instagram.com/username_kamu" target="_blank">Instagram</a>
+                            <a href="https://twitter.com/username_kamu" target="_blank">Twitter (X)</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <div class="search-container">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Cari anime..." autocomplete="off">
+                    <div id="searchDropdown" class="search-dropdown"></div>
+                </div>
+            </div>
+        </div>
+
+        <a href="/" class="nav-back">← Kembali ke Beranda</a>
+
+        <div class="detail-wrapper">
+            <div class="poster-container">
+                <img src="{{ anime.poster }}" alt="{{ anime.judul }}" onerror="this.src='https://via.placeholder.com/280x400?text=No+Image'">
+            </div>
+
+            <div class="info-container">
+                <div class="breadcrumb">Anime / {{ anime.musim }}</div>
+                <h1 class="anime-main-title">{{ anime.judul }}</h1>
+                {% if anime.judul_alt %}
+                <div class="anime-alt-title">{{ anime.judul_alt }}</div>
+                {% endif %}
+
+                <div class="pill-row">
+                    <span class="pill-item pill-type">{{ anime.tipe | default('TV') }}</span>
+                    <span class="pill-item pill-status">{{ anime.status | default('Belum tayang') }}</span>
+                    <span class="pill-item pill-rating">★ {{ anime.rating | default('0.00') }}</span>
+                </div>
+
+                <div class="tags-row">
+                    {% if anime.genre %}
+                        {% for g in anime.genre %}<span class="tag-badge">{{ g }}</span>{% endfor %}
+                    {% endif %}
+                    {% if anime.tema %}
+                        {% for t in anime.tema %}<span class="tag-badge">{{ t }}</span>{% endfor %}
+                    {% endif %}
+                    {% if anime.demografi %}
+                        {% for d in anime.demografi %}<span class="tag-badge">{{ d }}</span>{% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="meta-info">
+                    <strong>Studio:</strong> {{ anime.studio | default('-') }} &nbsp;|&nbsp; 
+                    <strong>Episode:</strong> {{ anime.eps | default('-') }}
+                </div>
+
+                <div class="action-buttons">
+                    {% if anime.mal_url %}
+                    <a href="{{ anime.mal_url }}" target="_blank" class="btn-action btn-mal">MyAnimeList ↗</a>
+                    {% endif %}
+                    
+                    <button class="btn-action btn-share" onclick="copyLink()">🔗 Bagikan</button>
+                    
+                    {% if anime.mal_url %}
+                    <a href="/sinkronkan/{{ anime.id }}" class="btn-action btn-sync" onclick="this.innerText='Menyinkronkan...'">🔄 Sinkronisasi</a>
+                    {% else %}
+                    <button class="btn-action btn-sync" onclick="openSyncModal()">🔄 Sinkronisasi</button>
+                    {% endif %}
+
+                    <a href="/jadwal-tayang" class="btn-action btn-schedule">📅 Lihat Jadwal</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- SINOPSIS (1 BARIS + TOGGLE) -->
+        <div class="synopsis-section">
+            <h2>Sinopsis</h2>
+            <div class="synopsis-container">
+                <div id="synopsisText" class="synopsis-text truncated">
+                    {{ anime.sinopsis | default('Belum ada sinopsis untuk anime ini.') }}
+                </div>
+                {% if anime.sinopsis and anime.sinopsis|length > 60 %}
+                <button id="btnToggleSynopsis" class="btn-toggle-synopsis" onclick="toggleSynopsis()">selengkapnya</button>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- BAGIAN PENGGARAP -->
+        <div class="section-penggarap">
+            <div class="penggarap-header-row">
+                <div class="penggarap-header-title">
+                    <h2>Penggarap</h2>
+                    <p>Platform atau distributor resmi yang menayangkan anime ini</p>
+                </div>
+                <a href="/tambah-proyek-penggarap/{{ anime.id }}" class="btn-add-proyek">+ Penggarap</a>
+            </div>
+
+            <div class="proyek-grid">
+                {% if anime.proyek_penggarap %}
+                    {% for p in anime.proyek_penggarap %}
+                    <div class="proyek-card">
+                        <div class="proyek-info">
+                            <h4 class="proyek-nama">{{ p.nama }}</h4>
+                            <div class="proyek-badges">
+                                <span class="badge-tag badge-tipe">{{ p.tipe }}</span>
+                                <span class="badge-tag badge-takarir">{{ p.takarir }}</span>
+                                <span class="badge-tag 
+                                    {% if p.status == 'Tamat' %}badge-status-tamat
+                                    {% elif p.status == 'Berjalan' %}badge-status-jalan
+                                    {% elif p.status == 'Drop' %}badge-status-drop
+                                    {% else %}badge-status-tentatif{% endif %}">
+                                    {{ p.status }}
+                                </span>
+                            </div>
+                            {% if p.catatan %}
+                            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Catatan: {{ p.catatan }}</div>
+                            {% endif %}
+                            
+                            <div style="display: flex; gap: 6px; margin-top: 8px;">
+                                <a href="/edit-proyek-penggarap/{{ anime.id }}/{{ p.id }}" class="btn-mini btn-mini-edit">Edit</a>
+                                <a href="/hapus-proyek-penggarap/{{ anime.id }}/{{ p.id }}" class="btn-mini btn-mini-del" onclick="return confirm('Yakin ingin menghapus penggarap ini?')">Hapus</a>
+                            </div>
+                        </div>
+
+                        <div class="proyek-actions-right">
+                            {% if p.tautan and p.tautan != '#' and p.tautan.strip() != '' %}
+                            <a href="{{ p.tautan }}" target="_blank" class="proyek-link-icon" title="Kunjungi Tautan">
+                                ↗
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-proyek">Belum ada penggarap resmi yang ditambahkan untuk anime ini.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="syncModal">
+        <div class="modal-card">
+            <div class="modal-header">Tautkan Link MyAnimeList</div>
+            <div class="modal-desc">Anime ini belum terhubung dengan MyAnimeList. Masukkan tautan MyAnimeList untuk memulai sinkronisasi:</div>
+            
+            <form action="/sinkronkan/{{ anime.id }}" method="POST">
+                <input type="url" name="mal_url" class="form-input" placeholder="https://myanimelist.net/anime/..." required>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeSyncModal()">Batal</button>
+                    <button type="submit" class="btn-save">Mulai Sinkronisasi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST ALERT NOTIFICATION -->
+    <div id="toastNotification" class="toast-alert" style="display: none;">
+        <span>✓</span> Anime sudah tersimpan di database.
+    </div>
+
+    <script>
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href);
+            alert('Tautan detail anime berhasil disalin!');
+        }
+
+        function openSyncModal() { document.getElementById('syncModal').style.display = 'flex'; }
+        function closeSyncModal() { document.getElementById('syncModal').style.display = 'none'; }
+
+        function toggleSynopsis() {
+            const textEl = document.getElementById('synopsisText');
+            const btnEl = document.getElementById('btnToggleSynopsis');
+
+            if (textEl.classList.contains('truncated')) {
+                textEl.classList.remove('truncated');
+                textEl.classList.add('full');
+                btnEl.innerText = 'sembunyikan';
+            } else {
+                textEl.classList.remove('full');
+                textEl.classList.add('truncated');
+                btnEl.innerText = 'selengkapnya';
+            }
+        }
+
+        function toggleDropdown(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('kontakDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        window.addEventListener('click', () => {
+            const dropdown = document.getElementById('kontakDropdown');
+            if (dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+            }
+            const searchDropdown = document.getElementById('searchDropdown');
+            if (searchDropdown) searchDropdown.style.display = 'none';
+        });
+
+        // LIVE SEARCH SCRIPT
+        const searchInput = document.getElementById('searchInput');
+        const searchDropdown = document.getElementById('searchDropdown');
+
+        if (searchInput && searchDropdown) {
+            searchInput.addEventListener('input', async function() {
+                const query = this.value.trim();
+                if (query.length === 0) {
+                    searchDropdown.style.display = 'none';
+                    searchDropdown.innerHTML = '';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/search-anime?q=${encodeURIComponent(query)}`);
+                    const results = await response.json();
+
+                    searchDropdown.innerHTML = '';
+                    if (results.length > 0) {
+                        results.forEach(anime => {
+                            const item = document.createElement('a');
+                            item.href = `/detail/${anime.id}`;
+                            item.className = 'search-item';
+                            item.innerHTML = `
+                                <img src="${anime.poster || 'https://via.placeholder.com/32x45?text=No'}" alt="${anime.judul}">
+                                <div class="search-item-info">
+                                    <span class="search-item-title">${anime.judul}</span>
+                                    <span class="search-item-sub">${anime.musim} • ${anime.studio}</span>
+                                </div>
+                            `;
+                            searchDropdown.appendChild(item);
+                        });
+                        searchDropdown.style.display = 'block';
+                    } else {
+                        searchDropdown.innerHTML = `<div class="search-empty">Anime tidak ditemukan</div>`;
+                        searchDropdown.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Error searching:', error);
+                }
+            });
+
+            searchInput.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (this.value.trim().length > 0) {
+                    searchDropdown.style.display = 'block';
+                }
+            });
+        }
+
+        // Cek parameter ?msg=exists untuk menampilkan toast alert
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('msg') === 'exists') {
+                const toast = document.getElementById('toastNotification');
+                toast.style.display = 'flex';
+                
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transition = 'opacity 0.5s ease';
+                    setTimeout(() => toast.remove(), 500);
+                }, 3500);
+            }
+        });
+    </script>
+</body>
+</html>
